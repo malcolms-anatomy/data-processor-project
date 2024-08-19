@@ -1,0 +1,78 @@
+@startuml diagram
+
+interface Mode {
+    +process(datapoint: Datapoint, database: Database)
+}
+
+class Processor {
+    -modeId: ModeIdentifier
+    -dbId: DatabaseIdentifier
+    +configure(modeId: ModeIdentifier, dbId: DatabaseIdentifier)
+    +createMode(modeId: ModeIdentifier): Mode
+    +createDatabase(dbId: DatabaseIdentifier): Database
+    +process(datapoint: Datapoint)
+}
+
+class DumpMode {
+    +process(datapoint: Datapoint, database: Database)
+}
+
+class PassthroughMode {
+    +process(datapoint: Datapoint, database: Database)
+}
+
+class ValidateMode {
+    +process(datapoint: Datapoint, database: Database)
+}
+
+interface Database {
+    +insert(datapoint: Datapoint)
+    +validate(datapoint: Datapoint): boolean
+}
+
+class PostgresDatabase {
+    +insert(datapoint: Datapoint)
+    +validate(datapoint: Datapoint): boolean
+}
+
+class RedisDatabase {
+    +insert(datapoint: Datapoint)
+    +validate(datapoint: Datapoint): boolean
+}
+
+class ElasticDatabase {
+    +insert(datapoint: Datapoint)
+    +validate(datapoint: Datapoint): boolean
+}
+
+class Datapoint {
+    -data: String
+    +Datapoint(data: String)
+}
+
+class ModeIdentifier {
+    <<enum>>
+    +DUMP
+    +PASSTHROUGH
+    +VALIDATE
+}
+
+class DatabaseIdentifier {
+    <<enum>>
+    +POSTGRES
+    +REDIS
+    +ELASTIC
+}
+
+Processor --> Mode : realizes
+DumpMode -|> Mode
+PassthroughMode -|> Mode
+ValidateMode -|> Mode
+Processor --> Database : uses
+PostgresDatabase -|> Database
+RedisDatabase -|> Database
+ElasticDatabase -|> Database
+Datapoint -- Processor : used as parameter
+Datapoint -- Database : used as parameter
+
+@enduml
